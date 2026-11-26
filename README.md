@@ -12,9 +12,9 @@ The application code is **not here on purpose**. It is written step by step with
 flowchart LR
     A["Rules and design<br/>CLAUDE.md and docs/"] --> B["Claude Code writes<br/>one file at a time"]
     B --> C["Tests decide<br/>when it is done"]
-    C -->|"13 pass: loader, model seam, core"| D["Hospital connection"]
+    C -->|"12 pass: loader, model seam, core"| D["Hospital connection"]
     D -->|"2 pass"| E["Screen"]
-    E -->|"1 pass, 16 in total"| F["Run it and ship it"]
+    E -->|"1 pass, 15 in total"| F["Run it and ship it"]
 ```
 
 ## What is in the starting folder
@@ -26,7 +26,7 @@ flowchart LR
 | `docs/02_POC_HLD.md` | The high-level design, with diagrams | What the POC is and is not |
 | `docs/03_POC_LLD.md` | The low-level design: every file, function, message and the model prompt | The contract Claude builds to |
 | `docs/04_EHR_FHIR_NOTES.md` | How the hospital's FHIR interface behaves, with the token sequence | What Claude cannot guess |
-| `poc/tests/` | 16 acceptance tests | The definition of done. They are fixed and must not be edited |
+| `poc/tests/` | 15 acceptance tests | The definition of done. They are fixed and must not be edited |
 | `sample_data/bundles/` | 22 synthetic patient files (19 generated with Synthea, 3 hand-written) | The input the POC reads |
 | `scripts/verify.sh` | Runs the tests in stages with a clean environment | Same result on every machine |
 | `scripts/make_keypair.py` | Creates the key pair for the read-only hospital client | The private key stays on your machine; only the public file is shared |
@@ -40,10 +40,10 @@ flowchart LR
 ## The test stages
 
 ```bash
-bash scripts/verify.sh engine   # 13 tests: records, model seam and graph
+bash scripts/verify.sh engine   # 12 tests: records, model seam and graph
 bash scripts/verify.sh fhir     # 2 tests: the hospital client
 bash scripts/verify.sh app      # 1 test: the screen
-bash scripts/verify.sh          # all 16
+bash scripts/verify.sh          # all 15
 ```
 
 Python 3.11 or newer is needed once the code exists.

@@ -8,9 +8,9 @@ Everything here is binding: file names, function names, field names, messages an
 2. `summarizer/records.py` (section 3)
 3. `summarizer/llm.py` (section 4)
 4. `summarizer/graph.py` (section 5)
-5. `bash scripts/verify.sh engine`: **13 tests pass** (the FHIR client and the screen do not exist yet)
+5. `bash scripts/verify.sh engine`: **12 tests pass** (the FHIR client and the screen do not exist yet)
 6. `summarizer/fhir.py` (section 6); `bash scripts/verify.sh fhir`: **2 tests pass**
-7. `app.py` (section 7); `bash scripts/verify.sh app`: **1 test passes**; then `bash scripts/verify.sh`: **all 16 pass**
+7. `app.py` (section 7); `bash scripts/verify.sh app`: **1 test passes**; then `bash scripts/verify.sh`: **all 15 pass**
 8. `poc/README.md` (section 9)
 
 How the steps and checks fit together:
@@ -20,11 +20,11 @@ flowchart TD
     S["1. Setup: requirements.txt, virtual environment"] --> R["2. records.py"]
     R --> L["3. llm.py"]
     L --> G["4. graph.py"]
-    G --> T1{{"bash scripts/verify.sh engine: 13 pass"}}
+    G --> T1{{"bash scripts/verify.sh engine: 12 pass"}}
     T1 --> F["6. fhir.py"]
     F --> T2{{"bash scripts/verify.sh fhir: 2 pass"}}
     T2 --> A["7. app.py"]
-    A --> T3{{"bash scripts/verify.sh app: 1 pass, then all 16"}}
+    A --> T3{{"bash scripts/verify.sh app: 1 pass, then all 15"}}
     T3 --> RD["8. poc/README.md"]
 ```
 
@@ -56,12 +56,11 @@ python-dotenv
 pytest
 httpx
 pyjwt[crypto]
-azure-identity
 ```
 
 Python 3.11 or newer. Tests run from the project root as `PYTHONPATH=poc python -m pytest poc/tests` (use `bash scripts/verify.sh`).
 
-Environment variables (see `.env.example`): `LLM_PROVIDER`, `GROQ_API_KEY`, `LLM_BASE_URL`, `LLM_API_KEY`, `LLM_MODEL`, `FOUNDRY_AUTH`, `POC_EHR_URL`, `POC_EHR_PUBLIC_URL`, `POC_FHIR_CLIENT_ID`, `POC_FHIR_KEY_FILE`, `BUNDLES_DIR`.
+Environment variables (see `.env.example`): `LLM_PROVIDER`, `GROQ_API_KEY`, `LLM_BASE_URL`, `LLM_API_KEY`, `LLM_MODEL`, `POC_EHR_URL`, `POC_EHR_PUBLIC_URL`, `POC_FHIR_CLIENT_ID`, `POC_FHIR_KEY_FILE`, `BUNDLES_DIR`.
 
 ## 2. Data shapes (pydantic v2 `BaseModel`s in `records.py`)
 
@@ -119,7 +118,7 @@ class OpenAICompatible:   # __init__(name, base_url, api_key, model, timeout=60)
 - `OpenAICompatible`: `name = f"{name}:{model}"`; uses `langchain_openai.ChatOpenAI` **imported lazily inside `__init__`** with `temperature=0`, `timeout=timeout`, `max_retries=1`. `complete_json` sends `[("system", system), ("user", user)]`, wraps any exception as `LLMError(f"{type(e).__name__}: {e}")`, and returns `extract_json` of the reply text.
 - `get_llm(provider)`: provider = argument, else `LLM_PROVIDER`, else `"groq"` if `GROQ_API_KEY` is set, else `"offline"`; lowercased.
   - `groq`: needs `GROQ_API_KEY` (else `LLMError("GROQ_API_KEY is not set (or use LLM_PROVIDER=offline)")`). Base URL `LLM_BASE_URL` default `https://api.groq.com/openai/v1`; model `LLM_MODEL` default `openai/gpt-oss-20b`.
-  - `foundry`: base `LLM_BASE_URL`, key `LLM_API_KEY`; if `FOUNDRY_AUTH == "managed_identity"` the key is `azure.identity.get_bearer_token_provider(ManagedIdentityCredential(), "https://ai.azure.com/.default")` (imported inside the branch). Missing base or key raises `LLMError("foundry needs LLM_BASE_URL and a key or managed identity")`. Model `LLM_MODEL` default `gpt-oss-20b`.
+  - `foundry`: base `LLM_BASE_URL`, key `LLM_API_KEY`. Missing base or key raises `LLMError("foundry needs LLM_BASE_URL and LLM_API_KEY")`. Model `LLM_MODEL` default `gpt-oss-20b`.
   - `offline`: returns `None`.
   - anything else: `LLMError(f"unknown LLM_PROVIDER {provider!r}")`.
 
@@ -249,7 +248,6 @@ Run from the project root with `streamlit run poc/app.py`. It inserts its own fo
 | The real model client works end to end | `test_openai_compatible_client_against_a_fake_endpoint` |
 | The screen, the fallback and the timing | `test_streamlit_app_renders_a_labelled_fallback_without_a_model` |
 | The EHR client, note text and id safety | `test_fhir.py` |
-| Managed-identity model sign-in | `test_foundry_identity.py` |
 
 ## 9. `poc/README.md`
 

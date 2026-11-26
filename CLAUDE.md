@@ -32,7 +32,7 @@ sample_data/bundles/           22 synthetic patient files (given, do not edit)
 ```bash
 python -m venv .venv && source .venv/bin/activate
 pip install -r poc/requirements.txt
-bash scripts/verify.sh                    # the whole test suite (16 tests), with a clean environment
+bash scripts/verify.sh                    # the whole test suite (15 tests), with a clean environment
 bash scripts/verify.sh engine|fhir|app    # one stage at a time while building
 streamlit run poc/app.py                  # the screen (from the project root)
 ```
